@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lowerCamelCase vs UpperCamelCase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --border: #2a2a30;
+    --accent-lower: #7DF3B4;
+    --accent-upper: #F3C97D;
+    --text: #e8e8ec;
+    --muted: #7a7a8a;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* --- HERO --- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, #1a1a2e 0%, var(--bg) 70%);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle 300px at 20% 30%, rgba(125, 243, 180, 0.06) 0%, transparent 70%),
+      radial-gradient(circle 300px at 80% 70%, rgba(243, 201, 125, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--mono);
+    font-size: clamp(2rem, 7vw, 5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.4s forwards;
+  }
+
+  .hero-title .lower { color: var(--accent-lower); }
+  .hero-title .upper { color: var(--accent-upper); }
+  .hero-title .vs { color: var(--muted); font-size: 0.5em; vertical-align: middle; margin: 0 0.5rem; }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.6s forwards;
+  }
+
+  .hero-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.8s forwards;
+  }
+
+  .hero-nav a {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .hero-nav a:hover { border-color: var(--accent-lower); color: var(--accent-lower); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    animation: bounce 2s infinite;
+    opacity: 0;
+    animation: fadeIn 1s 1.5s forwards, bounce 2s 2.5s infinite;
+  }
+
+  /* --- SECTIONS --- */
+  section { padding: 6rem 1.5rem; max-width: 900px; margin: 0 auto; }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-lower);
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--text);
+  }
+
+  /* --- DEFINITION CARDS --- */
+  .def-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  @media (max-width: 600px) { .def-grid { grid-template-columns: 1fr; } }
+
+  .def-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .def-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .def-card.lower::before { background: var(--accent-lower); }
+  .def-card.upper::before { background: var(--accent-upper); }
+
+  .def-card h3 {
+    font-family: var(--mono);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .def-card.lower h3 { color: var(--accent-lower); }
+  .def-card.upper h3 { color: var(--accent-upper); }
+
+  .def-example {
+    font-family: var(--mono);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 1rem 0;
+    color: var(--text);
+    word-break: break-all;
+  }
+
+  .def-rule {
+    font-size: 13px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  /* --- TABLE --- */
+  .table-wrap { overflow-x: auto; margin-bottom: 2rem; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td:first-child { color: var(--muted); font-size: 13px; }
+  td:nth-child(2) { font-family: var(--mono); font-size: 13px; }
+  td.lower-val { color: var(--accent-lower); }
+  td.upper-val { color: var(--accent-upper); }
+  td:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  /* --- CODE BLOCKS --- */
+  .lang-block { margin-bottom: 2rem; }
+
+  .lang-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 6px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    display: inline-block;
+  }
+
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0 6px 6px 6px;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .kw { color: #c792ea; }
+  .fn { color: var(--accent-lower); }
+  .cls { color: var(--accent-upper); }
+  .str { color: #c3e88d; }
+  .cm { color: #546e7a; }
+
+  /* --- SIGLAS --- */
+  .siglas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 600px) { .siglas-grid { grid-template-columns: 1fr; } }
+
+  .sigla-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+
+  .sigla-card h4 {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .sigla-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+
+  .badge-ok {
+    font-size: 10px;
+    padding: 2px 7px;
+    background: rgba(125,243,180,0.1);
+    color: var(--accent-lower);
+    border-radius: 3px;
+    border: 1px solid rgba(125,243,180,0.2);
+  }
+  .badge-no {
+    font-size: 10px;
+    padding: 2px 7px;
+    background: rgba(243,80,80,0.08);
+    color: #f38080;
+    border-radius: 3px;
+    border: 1px solid rgba(243,80,80,0.2);
+  }
+
+  /* --- PREGUNTAS --- */
+  .qa-list { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .qa-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .qa-q {
+    padding: 1.1rem 1.5rem;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .qa-q:hover { background: rgba(255,255,255,0.03); }
+  .qa-q .num { font-family: var(--mono); color: var(--muted); font-size: 12px; flex-shrink: 0; }
+  .qa-q .chevron { color: var(--muted); font-size: 12px; transition: transform 0.25s; flex-shrink: 0; }
+  .qa-item.open .chevron { transform: rotate(180deg); }
+
+  .qa-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .qa-item.open .qa-a { max-height: 300px; }
+  .qa-a-inner { padding: 0 1.5rem 1.25rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+  .qa-a code { font-family: var(--mono); background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 3px; font-size: 12px; color: var(--text); }
+
+  /* --- ACTIVITY --- */
+  #actividad { border-top: 1px solid var(--border); padding-top: 6rem; }
+
+  .quiz-wrap { max-width: 700px; }
+
+  .quiz-score {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .score-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+  .score-num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; color: var(--text); }
+  .score-lbl { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.75rem;
+  }
+
+  .q-progress { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-bottom: 1rem; }
+  .q-context { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .q-text { font-size: 14px; color: var(--text); margin-bottom: 1rem; }
+  .q-code {
+    font-family: var(--mono);
+    font-size: 1.3rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 16px;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+
+  .opts { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .opt {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--muted); background: rgba(255,255,255,0.04); }
+  .opt.correct { background: rgba(125,243,180,0.1); border-color: var(--accent-lower); color: var(--accent-lower); }
+  .opt.wrong { background: rgba(243,80,80,0.08); border-color: #f38080; color: #f38080; }
+
+  .q-feedback {
+    margin-top: 1rem;
+    font-size: 13px;
+    min-height: 20px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .q-feedback.ok { color: var(--accent-lower); }
+  .q-feedback.fail { color: #f38080; }
+
+  .quiz-next {
+    margin-top: 1.25rem;
+    padding: 9px 22px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .quiz-next:hover { border-color: var(--text); color: var(--text); }
+
+  .finish-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3rem 2rem;
+    text-align: center;
+    display: none;
+  }
+  .finish-wrap h3 { font-family: var(--mono); font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .finish-big { font-family: var(--mono); font-size: 3rem; font-weight: 700; color: var(--text); margin: 0.5rem 0; }
+  .finish-msg { font-size: 14px; color: var(--muted); margin-bottom: 1.5rem; }
+  .restart-btn {
+    padding: 10px 24px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .restart-btn:hover { border-color: var(--accent-lower); color: var(--accent-lower); }
+
+  /* --- FOOTER --- */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  /* --- ANIMATIONS --- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(8px); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* --- DIVIDER --- */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <p class="hero-eyebrow">Nomenclatura en programación</p>
+  <h1 class="hero-title">
+    <span class="lower">lower</span><span>CamelCase</span>
+    <span class="vs">vs</span>
+    <span class="upper">Upper</span><span>CamelCase</span>
+  </h1>
+  <p class="hero-sub">Diferencias, reglas de uso, contextos y casos especiales con ejemplos en código real.</p>
+  <nav class="hero-nav">
+    <a href="#definicion">Definición</a>
+    <a href="#uso">Contextos</a>
+    <a href="#ejemplos">Ejemplos</a>
+    <a href="#siglas">Siglas</a>
+    <a href="#preguntas">Preguntas</a>
+    <a href="#actividad">Actividad</a>
+  </nav>
+  <div class="scroll-hint">↓ scroll</div>
+</header>
+
+<hr class="divider">
+
+<!-- DEFINICIÓN -->
+<section id="definicion">
+  <div class="reveal">
+    <p class="section-tag">01 — Definición</p>
+    <h2>¿Qué son y en qué se diferencian?</h2>
+    <div class="def-grid">
+      <div class="def-card lower">
+        <h3>lowerCamelCase</h3>
+        <div class="def-example">miVariable</div>
+        <p style="font-size:14px; color:var(--muted);">La <strong style="color:var(--text)">primera palabra</strong> va en minúscula. Cada palabra siguiente empieza con mayúscula.</p>
+        <div class="def-rule">También llamado: <em>camelCase</em> o <em>dromedaryCase</em></div>
+      </div>
+      <div class="def-card upper">
+        <h3>UpperCamelCase</h3>
+        <div class="def-example">MiVariable</div>
+        <p style="font-size:14px; color:var(--muted);"><strong style="color:var(--text)">Todas las palabras</strong>, incluida la primera, empiezan con mayúscula.</p>
+        <div class="def-rule">También llamado: <em>PascalCase</em></div>
+      </div>
+    </div>
+    <p style="font-size:14px; color:var(--muted); line-height:1.8;">Ambos estilos eliminan espacios y caracteres especiales entre palabras. La diferencia es únicamente la capitalización de la primera letra. Esta convención permite leer identificadores de varias palabras sin ambigüedad.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CONTEXTOS DE USO -->
+<section id="uso">
+  <div class="reveal">
+    <p class="section-tag">02 — Contextos</p>
+    <h2>¿Cuándo usar cada uno?</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Elemento</th>
+            <th>Convención</th>
+            <th>Ejemplo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Variable</td>
+            <td class="lower-val">lowerCamelCase</td>
+            <td>edadUsuario</td>
+          </tr>
+          <tr>
+            <td>Función / Método</td>
+            <td class="lower-val">lowerCamelCase</td>
+            <td>calcularPrecio()</td>
+          </tr>
+          <tr>
+            <td>Parámetro</td>
+            <td class="lower-val">lowerCamelCase</td>
+            <td>nombreCliente</td>
+          </tr>
+          <tr>
+            <td>Clase</td>
+            <td class="upper-val">UpperCamelCase</td>
+            <td>CuentaBancaria</td>
+          </tr>
+          <tr>
+            <td>Interfaz</td>
+            <td class="upper-val">UpperCamelCase</td>
+            <td>IServicioEmail</td>
+          </tr>
+          <tr>
+            <td>Enum / Tipo</td>
+            <td class="upper-val">UpperCamelCase</td>
+            <td>EstadoPedido</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px; color:var(--muted);">La lógica es simple: <strong style="color:var(--accent-lower)">lowerCamelCase</strong> para valores y acciones (variables, funciones), <strong style="color:var(--accent-upper)">UpperCamelCase</strong> para plantillas y tipos (clases, interfaces). Así puedes identificar de qué se trata un identificador con solo ver su primera letra.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- EJEMPLOS EN 3 LENGUAJES -->
+<section id="ejemplos">
+  <div class="reveal">
+    <p class="section-tag">03 — Ejemplos comparativos</p>
+    <h2>Código en 3 lenguajes</h2>
+
+    <div class="lang-block">
+      <div class="lang-label">JavaScript / TypeScript</div>
+      <pre><span class="cm">// Variables y funciones → lowerCamelCase</span>
+<span class="kw">let</span> <span class="fn">nombreCompleto</span> = <span class="str">"Ana López"</span>;
+<span class="kw">const</span> <span class="fn">precioConDescuento</span> = 99.9;
+
+<span class="kw">function</span> <span class="fn">calcularImpuesto</span>(precio) {
+  <span class="kw">return</span> precio * 0.19;
+}
+
+<span class="cm">// Clases e interfaces → UpperCamelCase</span>
+<span class="kw">class</span> <span class="cls">CuentaBancaria</span> {
+  <span class="fn">constructor</span>(saldoInicial) { ... }
+  <span class="fn">depositar</span>(monto) { ... }
+}
+
+<span class="kw">interface</span> <span class="cls">IServicioEmail</span> {
+  <span class="fn">enviar</span>(destinatario: <span class="kw">string</span>): <span class="kw">void</span>;
+}</pre>
+    </div>
+
+    <div class="lang-block">
+      <div class="lang-label">Java</div>
+      <pre><span class="cm">// Variables y métodos → lowerCamelCase</span>
+<span class="kw">String</span> nombreCompleto = <span class="str">"Ana López"</span>;
+<span class="kw">int</span> edadUsuario = 25;
+
+<span class="kw">public</span> <span class="kw">void</span> <span class="fn">calcularImpuesto</span>(<span class="kw">double</span> precio) {
+  <span class="kw">return</span> precio * 0.19;
+}
+
+<span class="cm">// Clases → UpperCamelCase</span>
+<span class="kw">public class</span> <span class="cls">CuentaBancaria</span> {
+  <span class="kw">private double</span> saldoActual;
+  <span class="kw">public void</span> <span class="fn">depositar</span>(<span class="kw">double</span> monto) { ... }
+}</pre>
+    </div>
+
+    <div class="lang-block">
+      <div class="lang-label">Python</div>
+      <pre><span class="cm"># Python usa snake_case para variables y funciones,</span>
+<span class="cm"># pero mantiene UpperCamelCase para clases (igual que los demás)</span>
+
+nombre_completo = <span class="str">"Ana López"</span>   <span class="cm"># snake_case (convención Python)</span>
+
+<span class="kw">def</span> <span class="fn">calcular_impuesto</span>(precio):     <span class="cm"># snake_case</span>
+    <span class="kw">return</span> precio * 0.19
+
+<span class="kw">class</span> <span class="cls">CuentaBancaria</span>:             <span class="cm"># UpperCamelCase (universal)</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, saldo):
+        self.saldo_actual = saldo</pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SIGLAS Y CASOS ESPECIALES -->
+<section id="siglas">
+  <div class="reveal">
+    <p class="section-tag">04 — Casos especiales</p>
+    <h2>Siglas, acrónimos y números</h2>
+    <div class="siglas-grid">
+      <div class="sigla-card">
+        <h4>lowerCamelCase</h4>
+        <div class="sigla-row">
+          <span class="fn" style="font-family:var(--mono)">urlBase</span>
+          <span class="badge-ok">✓ correcto</span>
+        </div>
+        <div class="sigla-row">
+          <span style="font-family:var(--mono); color:var(--muted)">URLBase</span>
+          <span class="badge-no">✗ evitar</span>
+        </div>
+        <div class="sigla-row">
+          <span class="fn" style="font-family:var(--mono)">httpRequest</span>
+          <span class="badge-ok">✓ correcto</span>
+        </div>
+        <div class="sigla-row">
+          <span class="fn" style="font-family:var(--mono)">userId</span>
+          <span class="badge-ok">✓ correcto</span>
+        </div>
+      </div>
+      <div class="sigla-card">
+        <h4>UpperCamelCase</h4>
+        <div class="sigla-row">
+          <span class="cls" style="font-family:var(--mono)">HttpRequest</span>
+          <span class="badge-ok">✓ correcto</span>
+        </div>
+        <div class="sigla-row">
+          <span style="font-family:var(--mono); color:var(--muted)">HTTPRequest</span>
+          <span class="badge-no">✗ evitar</span>
+        </div>
+        <div class="sigla-row">
+          <span class="cls" style="font-family:var(--mono)">UserId</span>
+          <span class="badge-ok">✓ correcto</span>
+        </div>
+        <div class="sigla-row">
+          <span class="cls" style="font-family:var(--mono)">UrlBase</span>
+          <span class="badge-ok">✓ correcto</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="siglas-grid">
+      <div class="sigla-card">
+        <h4>Letras griegas</h4>
+        <div class="sigla-row"><span class="fn" style="font-family:var(--mono)">deltaVelocidad</span><span class="badge-ok">✓</span></div>
+        <div class="sigla-row"><span class="fn" style="font-family:var(--mono)">betaVersion</span><span class="badge-ok">✓</span></div>
+        <div class="sigla-row"><span style="font-family:var(--mono); color:var(--muted)">ΔVelocidad</span><span class="badge-no">✗</span></div>
+        <p style="font-size:12px; color:var(--muted); margin-top:0.75rem;">Se escribe el nombre de la letra en inglés, no el símbolo.</p>
+      </div>
+      <div class="sigla-card">
+        <h4>Números en identificadores</h4>
+        <div class="sigla-row"><span class="fn" style="font-family:var(--mono)">factor2</span><span class="badge-ok">✓</span></div>
+        <div class="sigla-row"><span class="fn" style="font-family:var(--mono)">nivel2Usuario</span><span class="badge-ok">✓</span></div>
+        <div class="sigla-row"><span style="font-family:var(--mono); color:var(--muted)">2factor</span><span class="badge-no">✗</span></div>
+        <p style="font-size:12px; color:var(--muted); margin-top:0.75rem;">Los identificadores <strong style="color:var(--text)">no pueden empezar</strong> con número.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PREGUNTAS -->
+<section id="preguntas">
+  <div class="reveal">
+    <p class="section-tag">05 — Preguntas frecuentes</p>
+    <h2>Cuatro preguntas clave</h2>
+    <div class="qa-list">
+
+      <div class="qa-item">
+        <div class="qa-q" onclick="toggleQA(this)">
+          <span><span class="num">01 &nbsp;</span>¿Por qué las clases usan UpperCamelCase y no lowerCamelCase?</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="qa-a">
+          <div class="qa-a-inner">Las clases representan <em>plantillas</em> o <em>tipos</em> para crear objetos, no valores concretos. Al usar UpperCamelCase se distinguen visualmente de variables y funciones con solo mirar la primera letra: <code>new CuentaBancaria()</code> vs <code>calcularSaldo()</code>. Es una señal visual que dice "esto es un tipo, no un dato".</div>
+        </div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q" onclick="toggleQA(this)">
+          <span><span class="num">02 &nbsp;</span>¿Cómo se escribe un identificador con una sigla como 'URL' en Camel Case?</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="qa-a">
+          <div class="qa-a-inner">La recomendación moderna (Google, Microsoft) es tratar la sigla como una palabra normal: <code>urlBase</code> en lower, <code>UrlBase</code> en upper. Evita <code>URLBase</code> porque dificulta leer dónde termina la sigla y empieza la siguiente palabra. Esto puede variar según la guía de estilo del proyecto.</div>
+        </div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q" onclick="toggleQA(this)">
+          <span><span class="num">03 &nbsp;</span>¿Cuándo es aceptable usar una sola palabra sin mayúsculas internas?</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="qa-a">
+          <div class="qa-a-inner">Siempre que el identificador sea una sola palabra real: <code>nombre</code>, <code>precio</code>, <code>usuario</code>. No hay nada que capitalizar porque no hay segunda palabra. En UpperCamelCase sería <code>Nombre</code>, <code>Precio</code>. No es un error, simplemente el estilo no se nota con una sola palabra.</div>
+        </div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q" onclick="toggleQA(this)">
+          <span><span class="num">04 &nbsp;</span>¿Qué pasa si el nombre empieza con una sigla en lowerCamelCase?</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="qa-a">
+          <div class="qa-a-inner">La sigla completa va en minúscula al inicio: <code>urlBase</code>, <code>idUsuario</code>, <code>httpCliente</code>. Si la sigla aparece en el interior, solo la primera letra sube: <code>baseUrl</code>, <code>obtenerHttpCliente()</code>. Esto mantiene la coherencia visual del camelCase.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ACTIVIDAD -->
+<section id="actividad">
+  <div class="reveal">
+    <p class="section-tag">06 — Actividad</p>
+    <h2>Pon a prueba lo aprendido</h2>
+    <div class="quiz-wrap">
+      <div class="quiz-score">
+        <div class="score-box"><div class="score-num" id="sc-ok">0</div><div class="score-lbl">Correctas</div></div>
+        <div class="score-box"><div class="score-num" id="sc-fail">0</div><div class="score-lbl">Incorrectas</div></div>
+        <div class="score-box"><div class="score-num" id="sc-left">10</div><div class="score-lbl">Restantes</div></div>
+      </div>
+
+      <div id="quiz-card" class="quiz-card">
+        <div class="q-progress" id="q-prog">Pregunta 1 de 10</div>
+        <div class="q-context" id="q-ctx"></div>
+        <div class="q-text" id="q-txt"></div>
+        <div class="q-code" id="q-cod"></div>
+        <div class="opts" id="opts"></div>
+        <div class="q-feedback" id="q-fb"></div>
+        <button class="quiz-next" id="quiz-next">Siguiente →</button>
+      </div>
+
+      <div class="finish-wrap" id="finish">
+        <h3>Resultado final</h3>
+        <div class="finish-big" id="fin-score"></div>
+        <div class="finish-msg" id="fin-msg"></div>
+        <button class="restart-btn" onclick="restartQuiz()">Volver a intentar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>lowerCamelCase vs UpperCamelCase &nbsp;·&nbsp; Exposición de nomenclatura en programación</p>
+</footer>
+
+<script>
+  // --- ACCORDION ---
+  function toggleQA(el) {
+    const item = el.parentElement;
+    item.classList.toggle('open');
+  }
+
+  // --- SCROLL REVEAL ---
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // --- QUIZ ---
+  const questions = [
+    { ctx: "Definición de una clase en Java", txt: "¿Cuál es el estilo correcto para el nombre de esta clase?", cod: "CuentaBancaria", ans: "UpperCamelCase", opts: ["lowerCamelCase","UpperCamelCase"], exp: "Las clases siempre usan UpperCamelCase." },
+    { ctx: "Nombre de una variable en JavaScript", txt: "¿Qué estilo usa este identificador?", cod: "totalPrecio", ans: "lowerCamelCase", opts: ["lowerCamelCase","UpperCamelCase"], exp: "Las variables usan lowerCamelCase." },
+    { ctx: "Nombre de una función en TypeScript", txt: "¿Cuál sería el nombre correcto para esta función?", cod: "obtenerUsuario()", ans: "lowerCamelCase", opts: ["lowerCamelCase","UpperCamelCase"], exp: "Las funciones y métodos usan lowerCamelCase." },
+    { ctx: "Sigla 'URL' al inicio en lowerCamelCase", txt: "¿Cuál de estas formas es la recomendada?", cod: "urlBase vs URLBase", ans: "urlBase", opts: ["urlBase","URLBase"], exp: "Al inicio en lowerCamelCase, la sigla va toda en minúscula: urlBase." },
+    { ctx: "Interfaz en TypeScript", txt: "¿Qué estilo usa este identificador?", cod: "IServicioEmail", ans: "UpperCamelCase", opts: ["lowerCamelCase","UpperCamelCase"], exp: "Las interfaces usan UpperCamelCase." },
+    { ctx: "Número en un identificador", txt: "¿Cuál de estos identificadores es válido?", cod: "factor2 vs 2factor", ans: "factor2", opts: ["factor2","2factor"], exp: "Los identificadores no pueden empezar con número." },
+    { ctx: "Método en una clase Java", txt: "¿Cuál es el estilo correcto para este método?", cod: "calcularImpuesto()", ans: "lowerCamelCase", opts: ["lowerCamelCase","UpperCamelCase"], exp: "Los métodos usan lowerCamelCase, como las funciones." },
+    { ctx: "Sigla 'HTTP' en UpperCamelCase", txt: "¿Cuál forma es la recomendada?", cod: "HttpRequest vs HTTPRequest", ans: "HttpRequest", opts: ["HttpRequest","HTTPRequest"], exp: "En UpperCamelCase la sigla se trata como palabra: HttpRequest." },
+    { ctx: "Nombre de una clase en Python", txt: "¿Qué estilo se usa para clases en Python?", cod: "ProductoDigital", ans: "UpperCamelCase", opts: ["lowerCamelCase","UpperCamelCase"], exp: "Python también usa UpperCamelCase para clases." },
+    { ctx: "Variable con letra griega", txt: "¿Cuál forma es correcta en lowerCamelCase?", cod: "deltaVelocidad vs ΔVelocidad", ans: "deltaVelocidad", opts: ["deltaVelocidad","ΔVelocidad"], exp: "Se escribe el nombre de la letra griega, no el símbolo." },
+  ];
+
+  let shuffled = [], idx = 0, ok = 0, fail = 0;
+
+  function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+  function renderQ() {
+    const q = shuffled[idx];
+    document.getElementById('q-prog').textContent = `Pregunta ${idx+1} de ${shuffled.length}`;
+    document.getElementById('q-ctx').textContent = q.ctx;
+    document.getElementById('q-txt').textContent = q.txt;
+    document.getElementById('q-cod').textContent = q.cod;
+    document.getElementById('q-fb').textContent = '';
+    document.getElementById('q-fb').className = 'q-feedback';
+    document.getElementById('quiz-next').style.display = 'none';
+    const opts = document.getElementById('opts');
+    opts.innerHTML = '';
+    q.opts.forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'opt';
+      b.textContent = o;
+      b.onclick = () => pick(o, b, q);
+      opts.appendChild(b);
+    });
+    updateSc();
+  }
+
+  function pick(o, btn, q) {
+    document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+    const fb = document.getElementById('q-fb');
+    if (o === q.ans) {
+      btn.classList.add('correct');
+      fb.textContent = '✓ Correcto. ' + q.exp;
+      fb.className = 'q-feedback ok';
+      ok++;
+    } else {
+      btn.classList.add('wrong');
+      document.querySelectorAll('.opt').forEach(b => { if (b.textContent === q.ans) b.classList.add('correct'); });
+      fb.textContent = '✗ Incorrecto. ' + q.exp;
+      fb.className = 'q-feedback fail';
+      fail++;
+    }
+    updateSc();
+    if (idx < shuffled.length - 1) {
+      document.getElementById('quiz-next').style.display = 'inline-block';
+    } else {
+      setTimeout(showFinish, 1200);
+    }
+  }
+
+  function updateSc() {
+    document.getElementById('sc-ok').textContent = ok;
+    document.getElementById('sc-fail').textContent = fail;
+    document.getElementById('sc-left').textContent = shuffled.length - idx - 1;
+  }
+
+  function showFinish() {
+    document.getElementById('quiz-card').style.display = 'none';
+    const f = document.getElementById('finish');
+    f.style.display = 'block';
+    const pct = Math.round((ok / shuffled.length) * 100);
+    document.getElementById('fin-score').textContent = `${ok} / ${shuffled.length}`;
+    const msgs = ['Sigue practicando, ¡casi lo tienes!','Buen intento, repasa los casos especiales.','¡Muy bien! Ya dominas el tema.','¡Perfecto! Eres un experto en CamelCase.'];
+    document.getElementById('fin-msg').textContent = pct < 50 ? msgs[0] : pct < 70 ? msgs[1] : pct < 100 ? msgs[2] : msgs[3];
+  }
+
+  function restartQuiz() {
+    idx = 0; ok = 0; fail = 0;
+    shuffled = shuffle(questions);
+    document.getElementById('quiz-card').style.display = 'block';
+    document.getElementById('finish').style.display = 'none';
+    renderQ();
+  }
+
+  document.getElementById('quiz-next').onclick = () => { idx++; renderQ(); };
+  restartQuiz();
+</script>
+</body>
+</html>
